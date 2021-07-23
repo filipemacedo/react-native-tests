@@ -46,4 +46,12 @@ export class HomePageObject extends PageObject {
 
     return searchInput
   }
+
+  public goToNotFound() {
+    const pressable = this.findByTestId('pressable')
+
+    fireEvent.press(pressable)
+
+    return this.app
+  }
 }

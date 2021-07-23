@@ -1,12 +1,12 @@
 import React from "react";
-import { fireEvent, waitFor } from "react-native-testing-library";
+import { act, fireEvent, waitFor } from "react-native-testing-library";
+import waitForExpect from "wait-for-expect";
 import { HomePageObject } from "../page-objects/HomePageObject";
 import { render } from "react-native-testing-library";
-import Home from "../../screens/Home";
-import { act } from "react-test-renderer";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import UserCard from "../../components/UserCard";
+import App from "../../App";
 import { Linking } from "react-native";
 
 const mock = new MockAdapter(axios);
@@ -21,13 +21,13 @@ describe("SearchUsers", () => {
       .onGet(/users*/)
       .reply(200, { total_count: 0, incomplete_results: false, items: [] });
 
-    const page = new HomePageObject(render(<Home />));
+    const page = new HomePageObject(render(<App />));
 
-    await act(async () => {
-      const isVisible = await page.isVisible();
-
-      expect(isVisible).toBeTruthy();
+    const isVisible = await waitFor(() => page.isVisible(), {
+      timeout: 2000,
     });
+
+    expect(isVisible).toBeTruthy();
   });
 
   it("should render users list then change input value", async () => {
@@ -35,13 +35,11 @@ describe("SearchUsers", () => {
       .onGet(/users*/)
       .reply(200, { total_count: 0, incomplete_results: false, items: [] });
 
-    const page = new HomePageObject(render(<Home />));
+    const page = new HomePageObject(render(<App />));
 
     const isVisible = await waitFor(() => page.isVisibleNoMessageData());
 
     expect(isVisible).toBeTruthy();
-
-    mock.reset();
 
     mock.onGet(/users*/).reply((config) => {
       const { q } = config.params;
@@ -115,14 +113,17 @@ describe("SearchUsers", () => {
       ];
     });
 
-    page.search("filipe");
+    await act(async () => {
+      await page.search("filipe");
+    });
 
     const listIsVisible = await waitFor(() => page.isVisibleUsersList(), {
-      timeout: 3000,
+      timeout: 2000,
     });
 
     expect(listIsVisible).toBeTruthy();
 
+    
     const usersListInstance = page.getUsersList();
 
     const users = usersListInstance.findAllByType(UserCard);
@@ -133,23 +134,44 @@ describe("SearchUsers", () => {
       (node) => node.props.testID === "userCard"
     );
 
-    await fireEvent.press(userContainer);
+    await act(async () => {
+      await fireEvent.press(userContainer);
+    });
 
-    await waitFor(() => expect(Linking.openURL).toHaveBeenCalled());
     await waitFor(() => expect(Linking.canOpenURL).toHaveBeenCalled());
   });
 
   it("should render error message when request failed", async () => {
     mock.onGet(/users*/).reply(401, { message: "Unauthorized" });
 
-    const page = new HomePageObject(render(<Home />));
+    const page = new HomePageObject(render(<App />));
 
-    page.search("filipe");
+    await act(async () => {
+      await page.search("filipe");
+    });
 
     const errorIsVisible = await waitFor(() => page.isVisibleErrorMessage(), {
       timeout: 2000,
     });
 
     expect(errorIsVisible).toBeTruthy();
+  });
+
+  it("should navigate to not found", async () => {
+    mock.onGet(/users*/).reply(401, { message: "Unauthorized" });
+
+    const instance = render(<App />);
+
+    const page = new HomePageObject(instance);
+
+    await act(async () => {
+      await page.goToNotFound();
+    });
+
+    await waitForExpect(async () => {
+      const isVisible = !!(await instance.findByTestId("NotFoundScreen"));
+
+      expect(isVisible).toBe(true);
+    }, 2000);
   });
 });

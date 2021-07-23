@@ -1,6 +1,4 @@
 import React from "react";
-import { NativeSyntheticEvent, TextInputChangeEventData } from "react-native";
-
 import SearchInput from "../SearchInput";
 
 import { Container, Message } from "./styles";

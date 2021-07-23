@@ -3,13 +3,12 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import { RootStackParamList } from "../types";
-import LinkingConfiguration from "./LinkingConfiguration";
 import NotFoundScreen from "../screens/NotFoundScreen";
 import Home from "../screens/Home";
 
 export default function Navigation() {
   return (
-    <NavigationContainer linking={LinkingConfiguration}>
+    <NavigationContainer>
       <RootNavigator />
     </NavigationContainer>
   );

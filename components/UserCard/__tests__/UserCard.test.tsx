@@ -42,14 +42,14 @@ describe("UserCard component", () => {
       userMock,
     } = render();
 
+    expect(testInstance).toBeDefined();
+    expect(containerInstance).toBeDefined();
+    expect(profileImageInstance).toBeDefined();
+    expect(usernameTextInstance).toBeDefined();
 
-    expect(testInstance).toBeTruthy();
-    expect(containerInstance).toBeTruthy();
-    expect(profileImageInstance).toBeTruthy();
-    expect(usernameTextInstance).toBeTruthy();
     expect(profileImageInstance.props.source).toMatchObject({
       uri: userMock.avatarUrl,
     });
-    expect(usernameTextInstance.props.children).toBe(userMock.login)
+    expect(usernameTextInstance.props.children).toBe(userMock.login);
   });
 });

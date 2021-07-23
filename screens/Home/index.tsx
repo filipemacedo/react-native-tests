@@ -1,13 +1,17 @@
 import React, { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import Search from "../../components/Search";
 import UsersList from "../../components/UsersList";
 import useGetUsers from "../../hooks/api/useGetUsers";
 import useDebounce from "../../hooks/useDebounce";
 import { Container, NotDataMessage } from "./styles";
+import { Pressable, Text } from "react-native";
 
 const Home: React.FC = () => {
   const [search, setSearch] = useState<string>("");
   const { data, loading, error, setQuery } = useGetUsers();
+
+  const navigate = useNavigation();
 
   useDebounce(() => {
     setQuery(search);
@@ -30,6 +34,14 @@ const Home: React.FC = () => {
       {error && (
         <NotDataMessage testID="errorMessage">Ocorreu um erro.</NotDataMessage>
       )}
+      <Pressable
+        testID="pressable"
+        onPress={() => {
+          navigate.navigate("NotFound");
+        }}
+      >
+        <Text>Clique aqui</Text>
+      </Pressable>
     </Container>
   );
 };
